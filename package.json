@@ -1,0 +1,27 @@
+{
+  "name": "vibe-coding-daily",
+  "version": "1.0.0",
+  "private": true,
+  "description": "깃허브 바이브코딩 유틸리티 앱 일간 큐레이션 (유틸/윈도우/컴퓨터 관련)",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "fetch": "node scripts/fetch-github.mjs"
+  },
+  "dependencies": {
+    "lucide-react": "^0.454.0",
+    "next": "14.2.5",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.16.0",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.47",
+    "tailwindcss": "^3.4.13",
+    "typescript": "^5.6.2"
+  }
+}
