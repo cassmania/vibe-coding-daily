@@ -1,6 +1,8 @@
 // 유틸 / 윈도우 / 컴퓨터 관련 카테고리 휴리스틱
 export const CATEGORIES = [
   "전체",
+  "AI·LLM",
+  "데스크톱 꾸미기",
   "윈도우 유틸",
   "파일 관리",
   "런처·생산성",
@@ -14,6 +16,49 @@ export const CATEGORIES = [
 export type Category = (typeof CATEGORIES)[number];
 
 const RULES: { category: Exclude<Category, "전체">; keywords: string[] }[] = [
+  {
+    category: "AI·LLM",
+    keywords: [
+      "ai-",
+      "gpt",
+      "llm",
+      "claude",
+      "gemini",
+      "chatbot",
+      "copilot",
+      "whisper",
+      "ollama",
+      "openai",
+      "anthropic",
+      "agent",
+      "stable-diffusion",
+      "text-to-speech",
+      "speech-to-text",
+      "dictation",
+    ],
+  },
+  {
+    category: "데스크톱 꾸미기",
+    keywords: [
+      "wallpaper",
+      "live-wallpaper",
+      "animated-wallpaper",
+      "wallpaper-engine",
+      "rainmeter",
+      "conky",
+      "desktop-widget",
+      "desktop-custom",
+      "ricing",
+      "hyprland",
+      "tiling",
+      "cursor-theme",
+      "taskbar",
+      "startmenu",
+      "start-menu",
+      "lock-screen",
+      "screensaver",
+    ],
+  },
   {
     category: "윈도우 유틸",
     keywords: ["windows", "win32", "winui", "powershell", "winget", "tray", "context-menu", "explorer"],
@@ -50,6 +95,16 @@ export function categorizeRepo(
   topics: string[],
   language: string | null
 ): Exclude<Category, "전체"> {
+  const lowerTopics = topics.map((t) => t.toLowerCase());
+  // 짧은 토픽(ai/llm/rag)은 정확히 일치할 때만 AI로 분류 (storage, drag 등 오분류 방지)
+  if (lowerTopics.some((t) => ["ai", "llm", "rag", "agent", "agents"].includes(t))) return "AI·LLM";
+  // 데스크톱 꾸미기 exact 토픽 (docker 등 오분류 방지 - dock은 exact일 때만)
+  if (
+    lowerTopics.some((t) =>
+      ["wallpaper", "wallpapers", "rainmeter", "ricing", "hyprland", "conky", "dock", "taskbar", "screensaver", "widgets", "widget", "theming", "desktop-customization", "tiling"].includes(t)
+    )
+  )
+    return "데스크톱 꾸미기";
   const hay = `${name} ${description ?? ""} ${topics.join(" ")} ${language ?? ""}`.toLowerCase();
   for (const rule of RULES) {
     if (rule.keywords.some((k) => hay.includes(k))) return rule.category;

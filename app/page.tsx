@@ -68,12 +68,17 @@ export default function Home() {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<string>("전체");
   const [sort, setSort] = useState<SortKey>("stars");
-  const [section, setSection] = useState<"all" | "daily_new" | "top_starred" | "windows_focus">("all");
+  const [section, setSection] = useState<"all" | "daily_new" | "top_starred" | "windows_focus" | "ai_focus" | "desktop_focus">("all");
+
+  const aiList = typed.sections.ai_focus ?? [];
+  const desktopList = typed.sections.desktop_focus ?? [];
 
   const source: AppItem[] = useMemo(() => {
     if (section === "all") return typed.all;
+    if (section === "ai_focus") return aiList;
+    if (section === "desktop_focus") return desktopList;
     return typed.sections[section];
-  }, [section]);
+  }, [section, aiList, desktopList]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -100,20 +105,20 @@ export default function Home() {
       <header className="flex flex-col gap-6 rounded-3xl bg-gradient-to-br from-zinc-900 via-zinc-800 to-blue-900 p-8 text-white md:flex-row md:items-center md:justify-between">
         <div>
           <p className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold">
-            <MonitorSmartphone size={13} /> 유틸 · 윈도우 · 컴퓨터 관련만 선별
+            <MonitorSmartphone size={13} /> 유틸 · 윈도우 · AI · 데스크톱 꾸미기 선별
           </p>
           <h1 className="mt-3 text-3xl font-extrabold leading-tight md:text-4xl">
             바이브코딩 유틸 일간
           </h1>
           <p className="mt-2 max-w-xl text-sm leading-relaxed text-zinc-300">
-            GitHub에 매일 올라오는 바이브코딩 앱 중 실용적인 데스크톱 유틸리티만 모았습니다.
-            스타 많은 순 · 오늘 올라온 신규 순으로 확인하세요. 매일 자동 갱신됩니다.
+            GitHub에 매일 올라오는 바이브코딩 앱 중 실용적인 데스크톱 유틸리티 + AI 앱 + 데스크톱 꾸미기 앱만 모았습니다.
+            스타 많은 순 · 오늘 올라온 신규 · AI · 꾸미기 순으로 확인하세요. 매일 자동 갱신됩니다.
           </p>
           <p className="mt-3 inline-flex items-center gap-1.5 text-xs text-zinc-400">
             <RefreshCw size={12} /> 마지막 수집: {new Date(typed.fetched_at).toLocaleString("ko-KR")} · 총 {typed.total}개
           </p>
         </div>
-        <div className="grid grid-cols-3 gap-3 md:w-72">
+        <div className="grid grid-cols-5 gap-3 md:w-[30rem]">
           <div className="rounded-2xl bg-white/10 p-4 text-center">
             <p className="text-2xl font-extrabold">{typed.sections.daily_new.length}</p>
             <p className="mt-1 text-[11px] text-zinc-300">오늘의 신규</p>
@@ -126,6 +131,14 @@ export default function Home() {
             <p className="text-2xl font-extrabold">{typed.sections.windows_focus.length}</p>
             <p className="mt-1 text-[11px] text-zinc-300">윈도우 특화</p>
           </div>
+          <div className="rounded-2xl bg-white/10 p-4 text-center">
+            <p className="text-2xl font-extrabold">{aiList.length}</p>
+            <p className="mt-1 text-[11px] text-zinc-300">AI 관련</p>
+          </div>
+          <div className="rounded-2xl bg-white/10 p-4 text-center">
+            <p className="text-2xl font-extrabold">{desktopList.length}</p>
+            <p className="mt-1 text-[11px] text-zinc-300">꾸미기</p>
+          </div>
         </div>
       </header>
 
@@ -137,6 +150,8 @@ export default function Home() {
             ["daily_new", "🆕 오늘의 신규"],
             ["top_starred", "⭐ 스타 많은 순"],
             ["windows_focus", "🪟 윈도우 특화"],
+            ["ai_focus", "🤖 AI 관련"],
+            ["desktop_focus", "🎨 데스크톱 꾸미기"],
           ] as const
         ).map(([key, label]) => (
           <button
@@ -160,7 +175,7 @@ export default function Home() {
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="앱 이름, 설명, 토픽 검색 (예: clipboard, launcher, windows)"
+            placeholder="앱 이름, 설명, 토픽 검색 (예: clipboard, wallpaper, rainmeter, ai)"
             className="w-full bg-transparent text-sm outline-none placeholder:text-zinc-400"
           />
         </label>
@@ -211,12 +226,12 @@ export default function Home() {
       <footer className="mt-14 rounded-2xl bg-zinc-100 p-6 text-xs leading-relaxed text-zinc-500 dark:bg-zinc-900 dark:text-zinc-400">
         <p className="font-bold text-zinc-700 dark:text-zinc-200">매일 자동 갱신되는 방식</p>
         <p className="mt-1">
-          ① <code>npm run fetch</code>가 GitHub Search API로 유틸·윈도우 키워드 저장소를 수집 →
+          ① <code>npm run fetch</code>가 GitHub Search API로 유틸·윈도우·AI·꾸미기 키워드 저장소를 수집 →
           ② <code>data/apps.json</code>으로 저장 → ③ GitHub Actions(<code>.github/workflows/daily.yml</code>)가
           매일 아침 자동 실행·커밋 → ④ Vercel 재배포. 토큰 없이도 동작하지만 시간당 60회 제한이 있어
           <code> GITHUB_TOKEN</code> 설정을 권장합니다.
         </p>
-        <p className="mt-2">선별 키워드: windows, file-manager, launcher, clipboard, screenshot, automation, system-monitor, cli, tray, hotkey, backup 등 컴퓨터 유틸 중심.</p>
+        <p className="mt-2">선별 키워드: windows, file-manager, launcher, clipboard, screenshot, automation, system-monitor, cli, tray, hotkey, backup + ai desktop app, llm chat client, whisper/dictation, ai agent + desktop customization, wallpaper widget, rainmeter, hyprland/tiling, taskbar/start-menu 등 꾸미기 중심.</p>
       </footer>
     </main>
   );

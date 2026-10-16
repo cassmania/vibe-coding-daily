@@ -26,6 +26,8 @@ export type AppsData = {
     daily_new: AppItem[];
     top_starred: AppItem[];
     windows_focus: AppItem[];
+    ai_focus?: AppItem[];
+    desktop_focus?: AppItem[];
   };
   all: AppItem[];
 };

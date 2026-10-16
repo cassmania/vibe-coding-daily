@@ -21,14 +21,34 @@ const QUERIES = [
   // 캡처/자동화/생산성
   "screenshot OR clipboard OR snip OR ocr tool stars:>50",
   "automation macro scheduler utility stars:>50",
+  // AI 관련 데스크톱 유틸 (사이트 취지에 맞게 앱형 위주)
+  "ai desktop app electron OR tauri stars:>50",
+  "llm chat client desktop stars:>50",
+  "whisper OR dictation OR voice-input desktop stars:>20",
+  "ai agent automation desktop created:>2025-06-01 stars:>20",
+  // 데스크톱 꾸미기 (월페이퍼/위젯/테마/타일링)
+  "desktop customization wallpaper widget stars:>50",
+  "rainmeter OR wallpaper-engine OR live-wallpaper stars:>20",
+  "hyprland OR tiling window-manager stars:>50",
+  "windows taskbar OR start-menu customizer stars:>20",
   // 최근 생성된 신생 앱 (바이브코딩 느낌)
   "utility tool created:>2025-06-01 stars:>20",
   "windows app created:>2025-06-01 stars:>20",
 ];
 
 function categorize(name, desc, topics, lang) {
+  const lowerTopics = (topics || []).map((t) => String(t).toLowerCase());
+  if (lowerTopics.some((t) => ["ai", "llm", "rag", "agent", "agents"].includes(t))) return "AI·LLM";
+  if (
+    lowerTopics.some((t) =>
+      ["wallpaper", "wallpapers", "rainmeter", "ricing", "hyprland", "conky", "dock", "taskbar", "screensaver", "widgets", "widget", "theming", "desktop-customization", "tiling"].includes(t)
+    )
+  )
+    return "데스크톱 꾸미기";
   const hay = `${name} ${desc ?? ""} ${(topics || []).join(" ")} ${lang ?? ""}`.toLowerCase();
   const rules = [
+    ["AI·LLM", ["ai-", "gpt", "llm", "claude", "gemini", "chatbot", "copilot", "whisper", "ollama", "openai", "anthropic", "agent", "stable-diffusion", "text-to-speech", "speech-to-text", "dictation"]],
+    ["데스크톱 꾸미기", ["wallpaper", "live-wallpaper", "animated-wallpaper", "wallpaper-engine", "rainmeter", "conky", "desktop-widget", "desktop-custom", "ricing", "hyprland", "tiling", "cursor-theme", "taskbar", "startmenu", "start-menu", "lock-screen", "screensaver"]],
     ["윈도우 유틸", ["windows", "win32", "winui", "powershell", "winget", "tray", "context-menu", "explorer"]],
     ["파일 관리", ["file-manager", "file", "explorer", "duplicate", "rename", "backup", "sync", "search"]],
     ["런처·생산성", ["launcher", "productivity", "todo", "note", "pomodoro", "spotlight", "raycast", "alfred", "shortcut", "hotkey"]],
@@ -82,10 +102,8 @@ for (const q of QUERIES) {
   await new Promise((r) => setTimeout(r, 1500));
 }
 
-let all = [...seen.values()].sort((a, b) => b.stars - a.stars);
-// 유틸ッション 외 잡다한 초대형 awesome-list 등은 제외하고 싶으면 stars 상한 없이 유지,
-// 대신 윈도우/유틸 키워드 하나라도 포함된 것만 우선 (이미 쿼리가 그렇게 되어 있음)
-all = all.slice(0, 60);
+const all = [...seen.values()].sort((a, b) => b.stars - a.stars);
+// 상한선 없음: 수집된 전량 저장
 
 // 섹션 구성
 const thirtyDaysAgo = Date.now() - 30 * 86400000;
@@ -97,11 +115,29 @@ const top_starred = [...all].sort((a, b) => b.stars - a.stars).slice(0, 12);
 const windows_focus = all
   .filter((a) => a.category === "윈도우 유틸" || /windows|tray|winget|powershell|hotkey/i.test(`${a.full_name} ${a.description ?? ""} ${a.topics.join(" ")}`))
   .slice(0, 12);
+const ai_focus = all
+  .filter(
+    (a) =>
+      a.category === "AI·LLM" ||
+      /ai-|gpt|llm|claude|gemini|chatbot|copilot|whisper|ollama|openai|anthropic|\brag\b|agent|stable-diffusion|dictation/i.test(
+        `${a.full_name} ${a.description ?? ""} ${a.topics.join(" ")}`
+      )
+  )
+  .slice(0, 12);
+const desktop_focus = all
+  .filter(
+    (a) =>
+      a.category === "데스크톱 꾸미기" ||
+      /wallpaper|rainmeter|ricing|hyprland|conky|taskbar|start-menu|startmenu|screensaver|wallpaper-engine|live-wallpaper|desktop-widget|desktop-custom|cursor-theme|\btiling\b|\bdock\b/i.test(
+        `${a.full_name} ${a.description ?? ""} ${a.topics.join(" ")}`
+      )
+  )
+  .slice(0, 12);
 
 const out = {
   fetched_at: new Date().toISOString(),
   total: all.length,
-  sections: { daily_new, top_starred, windows_focus },
+  sections: { daily_new, top_starred, windows_focus, ai_focus, desktop_focus },
   all,
 };
 
