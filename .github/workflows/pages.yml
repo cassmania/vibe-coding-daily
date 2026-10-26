@@ -4,6 +4,10 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+  # 봇 커밋(GITHUB_TOKEN)은 push 이벤트를 못 일으키므로 수집 완료 후 재배포
+  workflow_run:
+    workflows: [daily-fetch]
+    types: [completed]
 
 permissions:
   contents: read

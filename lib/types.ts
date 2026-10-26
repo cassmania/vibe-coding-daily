@@ -31,3 +31,23 @@ export type AppsData = {
   };
   all: AppItem[];
 };
+
+export type SkillItem = {
+  id: number;
+  full_name: string;
+  html_url: string;
+  description: string | null;
+  language: string | null;
+  stars: number;
+  forks: number;
+  topics: string[];
+  created_at: string;
+  pushed_at: string;
+  owner_avatar: string;
+};
+
+export type SkillsData = {
+  fetched_at: string;
+  fresh: SkillItem[];
+  top: SkillItem[];
+};

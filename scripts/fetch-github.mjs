@@ -144,3 +144,36 @@ const out = {
 fs.mkdirSync("data", { recursive: true });
 fs.writeFileSync("data/apps.json", JSON.stringify(out, null, 2), "utf-8");
 console.log(`저장 완료: data/apps.json (${all.length}개)`);
+
+// 스킬 스냅샷 (페이지가 열리면 브라우저에서 다시 실시간 조회, 이 파일은 실패 시 대체용)
+// 쿼리는 lib/skills.ts의 skillQueries와 같게 유지
+const SKILL_BASE = "claude skill in:name,description,topics";
+const weekAgo = new Date(Date.now() - 7 * 86400000).toISOString().slice(0, 19) + "Z";
+const toSkill = (r) => ({
+  id: r.id,
+  full_name: r.full_name,
+  html_url: r.html_url,
+  description: r.description,
+  language: r.language,
+  stars: r.stargazers_count,
+  forks: r.forks_count,
+  topics: r.topics ?? [],
+  created_at: r.created_at,
+  pushed_at: r.pushed_at,
+  owner_avatar: r.owner?.avatar_url ?? "",
+});
+async function searchSkills(q) {
+  const res = await fetch(
+    `https://api.github.com/search/repositories?q=${encodeURIComponent(q)}&sort=stars&order=desc&per_page=60`,
+    { headers }
+  );
+  if (!res.ok) throw new Error(`스킬 쿼리 실패: ${q} -> ${res.status}`);
+  return ((await res.json()).items ?? []).map(toSkill);
+}
+const skills = {
+  fetched_at: new Date().toISOString(),
+  fresh: await searchSkills(`${SKILL_BASE} created:>${weekAgo} stars:>=2`),
+  top: await searchSkills(`${SKILL_BASE} stars:>500`),
+};
+fs.writeFileSync("data/skills.json", JSON.stringify(skills, null, 2), "utf-8");
+console.log(`저장 완료: data/skills.json (신규 ${skills.fresh.length} · 인기 ${skills.top.length})`);

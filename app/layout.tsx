@@ -2,17 +2,27 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "바이브코딩 유틸 일간 | GitHub 윈도우·컴퓨터 유틸 모음",
+  title: "바이브코딩 데일리 | 새 스킬·인기 스킬 실시간",
   description:
-    "GitHub에 매일 올라오는 바이브코딩 앱 중 유틸리티·윈도우·컴퓨터 관련 앱만 골라 스타 순으로 정리합니다.",
+    "GitHub에 새로 올라온 Claude 스킬과 스타 많은 스킬을 실시간으로 보여주고, 바이브코딩 유틸 앱을 매일 정리합니다.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ko">
-      <body className="bg-zinc-50 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100">
-        {children}
-      </body>
+      <head>
+        <link
+          rel="stylesheet"
+          href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
+        />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@500;600;700&display=swap"
+        />
+      </head>
+      <body>{children}</body>
     </html>
   );
 }
